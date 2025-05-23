@@ -1,18 +1,41 @@
 import React, { useState } from "react";
 
-type Props = {
-  onStart: (difficulty: "easy" | "medium" | "hard") => void;
-};
+type Difficulty = "easy" | "medium" | "hard";
 
-export default function MenuScreen({ onStart }: Props) {
+interface MenuScreenProps {
+  onStart: (difficulty: Difficulty) => void;
+}
+
+const MenuScreen: React.FC<MenuScreenProps> = ({ onStart }) => {    // Functional Component
+  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
+
   return (
-    <div className="flex flex-col items-center gap-4 p-8 bg-white rounded-lg shadow">
-      <h1 className="text-3xl font-bold">Buscaminas</h1>
-      <div className="flex gap-2">
-        <button onClick={() => onStart("easy")} className="btn">Fácil</button>
-        <button onClick={() => onStart("medium")} className="btn">Medio</button>
-        <button onClick={() => onStart("hard")} className="btn">Difícil</button>
+    <div className="flex flex-col items-center p-1 gap-1">
+      <h1 className="text-5xl m-2">Buscaminas</h1>
+
+      <div className="flex flex-col gap-1 mb-2">
+        <label className="text-2xl">Dificultad:</label>
+        <select
+          className="text-l p-1"
+          value={difficulty}
+          onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+        >
+          <option value="easy">Fácil</option>
+          <option value="medium">Medio</option>
+          <option value="hard">Difícil</option>
+        </select>
+      </div>
+
+      <button className="text-white text-xl bg-cyan-200 rounded-xl cursor-pointer py-3 px-8" onClick={() => onStart(difficulty)}>
+        Jugar
+      </button>
+
+      <div className="mx-auto flex max-w-sm flex-col items-start gap-y-2 rounded-xl p-6 bg-white">
+        <h2 className="text-xl font-semibold">Puntuaciones</h2>
+        <p className="italic text-gray-600">No hay puntuaciones aún</p>
       </div>
     </div>
   );
-}
+};
+
+export default MenuScreen;

@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import MenuScreen from "./pages/MenuScreen";
 import GameScreen from "./pages/GameScreen";
@@ -16,7 +17,7 @@ export default function App() {
   };
 
   return (
-  <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+  <div className="min-h-screen bg-lime-100 flex items-center justify-center">
     {screen === "menu" ? (
       <MenuScreen onStart={startGame} />
     ) : (
