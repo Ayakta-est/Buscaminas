@@ -1,4 +1,3 @@
-// game.ts
 export type GameState = "idle" | "playing" | "won" | "lost";
 
 export type Cell = {
