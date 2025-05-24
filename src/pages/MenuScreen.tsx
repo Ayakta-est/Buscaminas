@@ -30,7 +30,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({ onStart }) => {    // Functiona
         Jugar
       </button>
 
-      <div className="mx-auto flex max-w-sm flex-col items-start gap-y-2 rounded-xl p-6 bg-white">
+      <div className="mx-auto flex max-w-sm flex-col items-start gap-y-2 rounded-lg p-6 bg-white">
         <h2 className="text-xl font-semibold">Puntuaciones</h2>
         <p className="italic text-gray-600">No hay puntuaciones aún</p>
       </div>

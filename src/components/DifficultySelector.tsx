@@ -1,0 +1,1 @@
+// Este se podría utilizar para mover la dificultad
