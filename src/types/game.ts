@@ -10,3 +10,14 @@ export type Cell = {
 };
 
 export type Board = Cell[][];
+
+
+//qué puede haber en una celda
+export interface CellData {
+  x: number;
+  y: number;
+  hasMine: boolean;
+  isRevealed: boolean;
+  isFlagged: boolean;
+  adjacentMines: number;
+}
