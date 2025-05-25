@@ -10,7 +10,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({ onStart }) => {    // Functiona
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
 
   return (
-    <div className="flex flex-col items-center p-1 gap-1">
+    <div className="flex flex-col items-center p-1 gap-1 text-white">
       <h1 className="text-5xl m-2">Buscaminas</h1>
 
       <div className="flex flex-col gap-1 mb-2">
@@ -20,9 +20,9 @@ const MenuScreen: React.FC<MenuScreenProps> = ({ onStart }) => {    // Functiona
           value={difficulty}
           onChange={(e) => setDifficulty(e.target.value as Difficulty)}
         >
-          <option value="easy">Fácil</option>
-          <option value="medium">Medio</option>
-          <option value="hard">Difícil</option>
+          <option value="easy" className="text-black">Fácil</option>
+          <option value="medium" className="text-black">Medio</option>
+          <option value="hard" className="text-black">Difícil</option>
         </select>
       </div>
 
@@ -31,7 +31,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({ onStart }) => {    // Functiona
       </button>
 
       <div className="mx-auto flex max-w-sm flex-col items-start gap-y-2 rounded-lg p-6 bg-white">
-        <h2 className="text-xl font-semibold">Puntuaciones</h2>
+        <h2 className="text-xl font-semibold text-black">Puntuaciones</h2>
         <p className="italic text-gray-600">No hay puntuaciones aún</p>
       </div>
     </div>

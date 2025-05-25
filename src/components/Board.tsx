@@ -23,6 +23,10 @@ const getBoardParams = (difficulty: Difficulty) => {
   }
 };
 
+// Comprueba si todas las casillas sin mina están reveladas
+const checkWin = (board: CellData[][]): boolean =>
+  board.flat().filter(c => !c.hasMine).every(c => c.isRevealed);
+
 const Board: React.FC<BoardProps> = ({ difficulty }) => {
   const { rows, cols, mines } = getBoardParams(difficulty);
 
@@ -38,15 +42,19 @@ const Board: React.FC<BoardProps> = ({ difficulty }) => {
       }))
     )
   );
-
   const [generated, setGenerated] = useState(false);
   const [flagMode, setFlagMode] = useState(false);
+  const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
 
   const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
-  const revealEmptyCells = (board: CellData[][], startX: number, startY: number): CellData[][] => {
+  const revealEmptyCells = (
+    board: CellData[][],
+    startX: number,
+    startY: number
+  ): CellData[][] => {
     const H = board.length, W = board[0].length;
-    const clone = board.map((row) => row.map((c) => ({ ...c })));
+    const clone = board.map(row => row.map(c => ({ ...c })));
     const visited = new Set<string>();
     const queue: [number, number][] = [[startX, startY]];
 
@@ -68,58 +76,64 @@ const Board: React.FC<BoardProps> = ({ difficulty }) => {
               nx >= 0 && ny >= 0 &&
               nx < W && ny < H &&
               !visited.has(`${nx}-${ny}`)
-            ) {
-              queue.push([nx, ny]);
-            }
+            ) queue.push([nx, ny]);
           }
         }
       }
     }
-
     return clone;
   };
 
   const handleLeftClick = (x: number, y: number) => {
-    setBoard((prev) => {
-      if (!generated) {
-        const newBoard = generateBoard(rows, cols, mines, x, y);
-        setGenerated(true);
-        return revealEmptyCells(newBoard, x, y);
-      }
+    if (gameState !== 'playing') return;
 
-      const clone = prev.map((r) => r.map((c) => ({ ...c })));
+    let newBoard: CellData[][];
+    let nextState: 'playing' | 'won' | 'lost' = 'playing';
+
+    if (!generated) {
+      const generatedBoard = generateBoard(rows, cols, mines, x, y);
+      setGenerated(true);
+      newBoard = revealEmptyCells(generatedBoard, x, y);
+    } else {
+      const clone = board.map(r => r.map(c => ({ ...c })));
       const cell = clone[y][x];
-      if (cell.isFlagged || cell.isRevealed) return prev;
+      if (cell.isFlagged || cell.isRevealed) return;
 
       if (cell.hasMine) {
-        alert("💥 Has perdido!");
-        return clone.map((r) => r.map((c) => ({ ...c, isRevealed: true })));
-      }
-
-      if (cell.adjacentMines === 0) {
-        return revealEmptyCells(clone, x, y);
+        nextState = 'lost';
+        newBoard = clone.map(r => r.map(c => ({ ...c, isRevealed: true })));
+      } else if (cell.adjacentMines === 0) {
+        newBoard = revealEmptyCells(clone, x, y);
       } else {
         clone[y][x].isRevealed = true;
-        return clone;
+        newBoard = clone;
       }
-    });
+    }
+
+    setBoard(newBoard);
+
+    if (nextState === 'lost') {
+      setGameState('lost');
+      alert("💥 Has perdido!");
+    } else if (checkWin(newBoard)) {
+      setGameState('won');
+      alert("🎉 ¡Has ganado!");
+    }
   };
 
   const handleRightClick = (e: React.MouseEvent, x: number, y: number) => {
     e.preventDefault();
-    setBoard((prev) => {
-      const clone = prev.map((r) => r.map((c) => ({ ...c })));
+    if (gameState !== 'playing') return;
+    setBoard(prev => {
+      const clone = prev.map(r => r.map(c => ({ ...c })));
       const cell = clone[y][x];
-      if (!cell.isRevealed) {
-        cell.isFlagged = !cell.isFlagged;
-      }
+      if (!cell.isRevealed) cell.isFlagged = !cell.isFlagged;
       return clone;
     });
   };
 
   return (
     <div className="flex flex-col items-center justify-center p-4">
-      {/* HUD superior */}
       <GameHUD
         difficulty={difficulty}
         isMobile={isMobile}
@@ -130,11 +144,11 @@ const Board: React.FC<BoardProps> = ({ difficulty }) => {
 
       <div className="flex">
         {/* Borde izquierdo */}
-        <div className="w-4 bg-sky-800 rounded-l" />
+        <div className="w-4 bg-sky-200" />
 
         {/* Tablero */}
         <div
-          className="grid bg-green-800 gap-px"
+          className="grid bg-sky-800 gap-px m-1"
           style={{ gridTemplateColumns: `repeat(${cols}, 2rem)` }}
         >
           {board.flat().map((cell) => (
@@ -158,13 +172,11 @@ const Board: React.FC<BoardProps> = ({ difficulty }) => {
         </div>
 
         {/* Borde derecho */}
-        <div className="w-4 bg-sky-800 rounded-r" />
+        <div className="w-4 bg-sky-200" />
       </div>
 
       {/* Borde inferior */}
-      <div
-        className="h-4 bg-sky-800 rounded-b w-full"
-      />
+      <div className="h-4 bg-sky-200 rounded-b-lg w-full max-w-[calc(2rem*cols+8px)]" />
     </div>
   );
 };

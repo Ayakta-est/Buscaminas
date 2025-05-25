@@ -58,7 +58,7 @@ const Cell: React.FC<CellProps> = ({ data, onClick, onRightClick }) => {
         ${
           data.isRevealed
             ? "bg-gray-300 border-gray-500"
-            : "bg-emerald-200 border-teal-800 hover:bg-teal-300"
+            : "bg-pink-800 border-pink-900 hover:bg-pink-600 border-3"
         }
         ${data.adjacentMines > 0 && data.isRevealed && !data.hasMine ? numberColor : ""}
       `}

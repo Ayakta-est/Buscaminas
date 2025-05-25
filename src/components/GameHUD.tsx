@@ -25,9 +25,9 @@ const GameHUD: React.FC<GameHUDProps> = ({
   const thickness = "w-8 h-8"; // grosor de los bordes
 
   const content = (
-    <div className="flex flex-col items-center gap-2 text-center p-2 text-white">
+    <div className="flex flex-col items-center gap-2 text-center p-2">
       {position === "top" && (
-        <h1 className="text-xl font-bold">
+        <h1 className="text-xl font-bold text-black">
           Modo de juego: {difficultyLabels[difficulty]}
         </h1>
       )}
@@ -47,7 +47,7 @@ const GameHUD: React.FC<GameHUDProps> = ({
 
   if (position === "top" || position === "bottom") {
     return (
-      <div className={`w-full bg-sky-800 ${position === "bottom" ? "rounded-b-lg" : "rounded-t-lg"}`}>
+      <div className={`w-full bg-sky-200 ${position === "bottom" ? "rounded-b-lg" : "rounded-t-lg"}`}>
         {content}
       </div>
     );
@@ -56,7 +56,7 @@ const GameHUD: React.FC<GameHUDProps> = ({
   if (position === "left" || position === "right") {
     return (
       <div
-        className={`bg-sky-800 ${thickness} flex items-center justify-center text-white ${
+        className={`bg-sky-200 ${thickness} flex items-center justify-center text-white ${
           position === "left" ? "rounded-l-lg" : "rounded-r-lg"
         }`}
       >
