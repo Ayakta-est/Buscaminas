@@ -1,9 +1,15 @@
 import { CellData } from "../types/game";
 
-export function generateBoard(rows: number, cols: number, mineCount: number): CellData[][] {
+export function generateBoard(
+  rows: number,
+  cols: number,
+  mineCount: number,
+  excludeX: number,
+  excludeY: number
+): CellData[][] {
   const board: CellData[][] = [];
 
-  // Generar tablero vacío
+  // 1. Generar tablero vacío
   for (let y = 0; y < rows; y++) {
     const row: CellData[] = [];
     for (let x = 0; x < cols; x++) {
@@ -19,18 +25,32 @@ export function generateBoard(rows: number, cols: number, mineCount: number): Ce
     board.push(row);
   }
 
-  // Colocar minas aleatoriamente
+  // 2. Preparar posiciones prohibidas (primer clic y vecinos)
+  const forbidden = new Set<string>();
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      const fx = excludeX + dx;
+      const fy = excludeY + dy;
+      if (fx >= 0 && fx < cols && fy >= 0 && fy < rows) {
+        forbidden.add(`${fx}-${fy}`);
+      }
+    }
+  }
+
+  // 3. Colocar minas aleatoriamente, evitando posiciones prohibidas
   let placedMines = 0;
   while (placedMines < mineCount) {
     const randX = Math.floor(Math.random() * cols);
     const randY = Math.floor(Math.random() * rows);
-    if (!board[randY][randX].hasMine) {
-      board[randY][randX].hasMine = true;
-      placedMines++;
+    const key = `${randX}-${randY}`;
+    if (forbidden.has(key) || board[randY][randX].hasMine) {
+      continue;
     }
+    board[randY][randX].hasMine = true;
+    placedMines++;
   }
 
-  // Calcular minas adyacentes
+  // 4. Calcular minas adyacentes para cada celda
   const directions = [
     [-1, -1], [-1, 0], [-1, 1],
     [ 0, -1],         [ 0, 1],
@@ -43,12 +63,12 @@ export function generateBoard(rows: number, cols: number, mineCount: number): Ce
 
       let count = 0;
       for (const [dy, dx] of directions) {
-        const newY = y + dy;
-        const newX = x + dx;
+        const ny = y + dy;
+        const nx = x + dx;
         if (
-          newY >= 0 && newY < rows &&
-          newX >= 0 && newX < cols &&
-          board[newY][newX].hasMine
+          ny >= 0 && ny < rows &&
+          nx >= 0 && nx < cols &&
+          board[ny][nx].hasMine
         ) {
           count++;
         }
