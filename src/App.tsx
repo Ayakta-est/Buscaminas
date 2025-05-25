@@ -17,7 +17,7 @@ export default function App() {
   };
 
   return (
-  <div className="min-h-screen bg-lime-100 flex items-center justify-center">
+  <div className="min-h-screen bg-slate-200 flex items-center justify-center">
     {screen === "menu" ? (
       <MenuScreen onStart={startGame} />
     ) : (

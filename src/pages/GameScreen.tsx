@@ -11,12 +11,10 @@ interface GameScreenProps {
 const GameScreen: React.FC<GameScreenProps> = ({ difficulty, onBack }) => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-4">
-      <h1 className="text-3xl font-bold text-center">
-        Modo de juego: {difficulty}
-      </h1>
-
+      
       <div className="overflow-auto max-w-full">
-        <Board difficulty={difficulty} />
+        <Board difficulty={difficulty}
+         />
       </div>
 
       <button

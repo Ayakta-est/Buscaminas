@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Cell from "./Cell";
 import { generateBoard } from "../utils/boardGenerator";
 import { CellData } from "../types/game";
+import GameHUD from "./GameHUD";
 
 type Difficulty = "easy" | "medium" | "hard";
 
@@ -25,7 +26,6 @@ const getBoardParams = (difficulty: Difficulty) => {
 const Board: React.FC<BoardProps> = ({ difficulty }) => {
   const { rows, cols, mines } = getBoardParams(difficulty);
 
-  // Estado del tablero y flag para saber si ya generamos minas
   const [board, setBoard] = useState<CellData[][]>(() =>
     Array.from({ length: rows }, (_, y) =>
       Array.from({ length: cols }, (_, x) => ({
@@ -38,9 +38,12 @@ const Board: React.FC<BoardProps> = ({ difficulty }) => {
       }))
     )
   );
-  const [generated, setGenerated] = useState(false);
 
-  // Flood fill para celdas vacías
+  const [generated, setGenerated] = useState(false);
+  const [flagMode, setFlagMode] = useState(false);
+
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
   const revealEmptyCells = (board: CellData[][], startX: number, startY: number): CellData[][] => {
     const H = board.length, W = board[0].length;
     const clone = board.map((row) => row.map((c) => ({ ...c })));
@@ -78,25 +81,19 @@ const Board: React.FC<BoardProps> = ({ difficulty }) => {
 
   const handleLeftClick = (x: number, y: number) => {
     setBoard((prev) => {
-      // Si todavía no hemos generado minas, lo hacemos ahora excluyendo (x,y)
       if (!generated) {
         const newBoard = generateBoard(rows, cols, mines, x, y);
         setGenerated(true);
-        // Revelamos en cascada desde la primera casilla
         return revealEmptyCells(newBoard, x, y);
       }
 
-      // Ya está generado: aplicamos lógica normal
       const clone = prev.map((r) => r.map((c) => ({ ...c })));
       const cell = clone[y][x];
       if (cell.isFlagged || cell.isRevealed) return prev;
 
       if (cell.hasMine) {
-        // Revelar todo y game over
         alert("💥 Has perdido!");
-        return clone.map((r) =>
-          r.map((c) => ({ ...c, isRevealed: true }))
-        );
+        return clone.map((r) => r.map((c) => ({ ...c, isRevealed: true })));
       }
 
       if (cell.adjacentMines === 0) {
@@ -121,18 +118,53 @@ const Board: React.FC<BoardProps> = ({ difficulty }) => {
   };
 
   return (
-    <div
-      className="grid bg-green-800 gap-px"
-      style={{ gridTemplateColumns: `repeat(${cols}, 2rem)` }}
-    >
-      {board.flat().map((cell) => (
-        <Cell
-          key={`${cell.x}-${cell.y}`}
-          data={cell}
-          onClick={() => handleLeftClick(cell.x, cell.y)}
-          onRightClick={(e) => handleRightClick(e, cell.x, cell.y)}
-        />
-      ))}
+    <div className="flex flex-col items-center justify-center p-4">
+      {/* HUD superior */}
+      <GameHUD
+        difficulty={difficulty}
+        isMobile={isMobile}
+        flagMode={flagMode}
+        onToggleFlagMode={() => setFlagMode(!flagMode)}
+        position="top"
+      />
+
+      <div className="flex">
+        {/* Borde izquierdo */}
+        <div className="w-4 bg-sky-800 rounded-l" />
+
+        {/* Tablero */}
+        <div
+          className="grid bg-green-800 gap-px"
+          style={{ gridTemplateColumns: `repeat(${cols}, 2rem)` }}
+        >
+          {board.flat().map((cell) => (
+            <Cell
+              key={`${cell.x}-${cell.y}`}
+              data={cell}
+              onClick={(e) => {
+                if (isMobile) {
+                  flagMode
+                    ? handleRightClick(e as unknown as React.MouseEvent, cell.x, cell.y)
+                    : handleLeftClick(cell.x, cell.y);
+                } else {
+                  handleLeftClick(cell.x, cell.y);
+                }
+              }}
+              onRightClick={(e) => {
+                if (!isMobile) handleRightClick(e, cell.x, cell.y);
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Borde derecho */}
+        <div className="w-4 bg-sky-800 rounded-r" />
+      </div>
+
+      {/* Borde inferior */}
+      <div
+        className="h-4 bg-sky-800 rounded-b w-full"
+      />
     </div>
   );
 };
